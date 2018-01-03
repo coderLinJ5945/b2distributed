@@ -65,9 +65,24 @@ public class UserController {
      * @param user
      * @return
      */
+    @RequestMapping(value = "register.do", method = {RequestMethod.POST})
+    @ResponseBody
     public ServerResponse<String> register(User user){
-        //iUserService.register(user);
-        return null;
+        return iUserService.register(user);
+    }
+
+
+
+    /**
+     *实时调用验证用户名或者邮箱接口
+     * @param str 验证的内容
+     * @param type 验证的类型
+     * @return
+     */
+    @RequestMapping(value = "checkValid.do",method = {RequestMethod.POST})
+    @ResponseBody
+    public ServerResponse<String> checkValid(String str ,String type){
+        return iUserService.checkValid(str,type);
     }
 
 
