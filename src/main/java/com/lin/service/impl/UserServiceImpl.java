@@ -2,6 +2,7 @@ package com.lin.service.impl;
 
 import com.lin.common.Constant;
 import com.lin.common.ServerResponse;
+import com.lin.common.TokenCache;
 import com.lin.dao.UserMapper;
 import com.lin.pojo.User;
 import com.lin.service.IUserService;
@@ -9,6 +10,8 @@ import com.lin.util.MD5Util;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service("iUserService")
 public class UserServiceImpl  implements IUserService{
@@ -81,10 +84,10 @@ public class UserServiceImpl  implements IUserService{
     }
 
     /**
-     *校验
+     *校验用户名是否存在
      * @param str 校验内容
      * @param type 校验类型
-     * @return
+     * @return 用户不存在的时候返回 isSuccess() : true
      */
     public ServerResponse<String> checkValid(String str, String type) {
        /*
@@ -115,5 +118,37 @@ public class UserServiceImpl  implements IUserService{
             return ServerResponse.createByError("参数错误");
         }
         return  ServerResponse.createBySuccess("验证通过");
+    }
+
+
+    //获取验证问题
+    public ServerResponse<String> getQuestion(String username){
+        //1、判断用户是否存在；
+        ServerResponse<String> checkUserNameResponse = this.checkValid(username,Constant.USER_NAME);
+        ServerResponse<String> checkUserEmailResponse = this.checkValid(username,Constant.EMAIL);
+        //逻辑取反，checkValid 是判断用户是否存在
+        if(checkUserNameResponse.isSuccess()&&checkUserEmailResponse.isSuccess()){
+            return ServerResponse.createByError("用户不存在");
+        }
+        //2、获取用户的问题
+        String question = userMapper.getQuestionByUserName(username);
+        if(StringUtils.isNotBlank(question)){
+            return ServerResponse.createBySuccess(question);
+        }
+        return ServerResponse.createByError("该用户没有设置找回密码的问题");
+    }
+
+
+    //校验用户的问题答案
+    public ServerResponse<String> checkForgetAnswer(String username,String question,String answer){
+        int count = userMapper.checkForgetAnswer(username,question,answer);
+        if(count > 0){ //问题验证成功
+            //生成一个token，将token放到缓存中，用于后续重置密码的key
+            String forgetToken = UUID.randomUUID().toString();
+            //将生成的token放入到guava缓存对象中
+            TokenCache.setKey(TokenCache.TOKEN_PREFIX+username,forgetToken);
+            return ServerResponse.createBySuccess(forgetToken);
+        }
+        return ServerResponse.createByError("问题回答错误");
     }
 }

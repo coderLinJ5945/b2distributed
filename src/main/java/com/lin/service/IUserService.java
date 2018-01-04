@@ -10,6 +10,12 @@ public interface IUserService {
     //注册
     ServerResponse<String> register(User user);
 
-    //校验
+    //校验用户名是否存在
     ServerResponse<String> checkValid(String str,String type);
+
+    //获取验证问题
+    ServerResponse<String>  getQuestion(String username);
+
+    //校验用户的问题答案
+    ServerResponse<String> checkForgetAnswer(String username,String question,String answer);
 }

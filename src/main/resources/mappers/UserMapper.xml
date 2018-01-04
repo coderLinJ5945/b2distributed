@@ -170,5 +170,23 @@
     and password = #{password}
   </select>
 
+  <select id="getQuestionByUserName" resultType="string" parameterType="string">
+    select
+    question
+    from mmall_user
+    where 1=1
+    and username = #{username}
+  </select>
+
+  <select id="checkForgetAnswer" resultType="int" parameterType="map">
+  select count(1)
+  from mmall_user
+  where 1=1 and username = #{username}
+  and question = #{question}
+  and answer = #{answer}
+  </select>
+
+
+
 
 </mapper>

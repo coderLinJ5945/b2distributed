@@ -6,8 +6,7 @@ import com.lin.common.ServerResponse;
 import com.lin.pojo.User;
 import com.lin.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpRequest;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -84,6 +83,50 @@ public class UserController {
     public ServerResponse<String> checkValid(String str ,String type){
         return iUserService.checkValid(str,type);
     }
+
+    /**
+     * 获取用户信息接口
+     * @param session
+     * @return
+     */
+    @RequestMapping(value = "getUserInfo.do",method = {RequestMethod.GET})
+    @ResponseBody
+    public ServerResponse<User> getUserInfo(HttpSession session){
+        User user = (User)session.getAttribute(Constant.CURRENT_USER);
+        if(user == null){
+            return ServerResponse.createByError("用户未登录，无法获取用户信息");
+        }
+        return ServerResponse.createBySuccess(user);
+    }
+
+
+    //
+
+    /**用户忘记密码，选择问题方式重置密码(后面可以修改一下随机获取一个问题，返回到前端进行验证)
+     * 获取用户忘记密码的问题接口
+     * @param username
+     * @return
+     */
+    @RequestMapping(value = "getQuestion.do",method = {RequestMethod.GET})
+    @ResponseBody
+    public ServerResponse<String> getQuestion(String username){
+        return  iUserService.getQuestion(username);
+    }
+
+    /**
+     * 校验问题答案（校验成功之后，使用guava缓存存储token）
+     * @param username
+     * @param question
+     * @param answer
+     * @return 如果问题回答正确，返回一个带有时效性的token
+     */
+    @RequestMapping(value = "getQuestion.do",method = {RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public ServerResponse<String> checkForgetAnswer(String username,String question,String answer){
+        return  iUserService.checkForgetAnswer(username,question,answer);
+    }
+
+
 
 
 
