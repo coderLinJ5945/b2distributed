@@ -18,4 +18,10 @@ public interface IUserService {
 
     //校验用户的问题答案
     ServerResponse<String> checkForgetAnswer(String username,String question,String answer);
+
+    //重置填写新密码1
+    ServerResponse<String> resetPassword1(String username, String newPassword, String forgetToken);
+
+    //重置填写新密码2
+    ServerResponse<String> resetPassword2(String username, String newPassword, String forgetToken);
 }

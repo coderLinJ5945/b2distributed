@@ -14,6 +14,9 @@ public interface UserMapper {
 
     int updateByPrimaryKeySelective(User record);
 
+    //根据用户名修改密码
+    int updatePwdByUsername(@Param("username") String username, @Param("newPassword")String newPassword);
+
     int updateByPrimaryKey(User record);
     //检测用户名
     int checkUsername(String username);

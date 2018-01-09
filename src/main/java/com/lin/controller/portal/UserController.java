@@ -120,10 +120,27 @@ public class UserController {
      * @param answer
      * @return 如果问题回答正确，返回一个带有时效性的token
      */
-    @RequestMapping(value = "getQuestion.do",method = {RequestMethod.GET,RequestMethod.POST})
+    @RequestMapping(value = "checkForgetAnswer.do",method = {RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
     public ServerResponse<String> checkForgetAnswer(String username,String question,String answer){
         return  iUserService.checkForgetAnswer(username,question,answer);
+    }
+
+
+    //忘记密码中的重置密码
+
+    /**
+     *
+     * @param username 重置的用户名
+     * @param newPassword 重置的新密码
+     * @param forgetToken 回答问题之后返回到前端的token 钥匙
+     * @return
+     */
+    @RequestMapping(value = "resetPassword.do",method = {RequestMethod.POST})
+    @ResponseBody
+    public ServerResponse<String> resetPassword(String username, String newPassword ,String forgetToken){
+        //return iUserService.resetPassword1(username, newPassword, forgetToken);//重置密码思路1
+        return iUserService.resetPassword2(username, newPassword, forgetToken);//重置密码思路2
     }
 
 

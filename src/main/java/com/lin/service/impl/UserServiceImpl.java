@@ -151,4 +151,69 @@ public class UserServiceImpl  implements IUserService{
         }
         return ServerResponse.createByError("问题回答错误");
     }
+
+    //重置填写新密码
+    public ServerResponse<String> resetPassword1(String username, String newPassword, String forgetToken){
+        // 1、先验证username
+        ServerResponse<String> checkNameResponse =  this.checkValid(username,Constant.USER_NAME);
+        if(checkNameResponse.isSuccess()){
+            //判断用户，如果不存在，就返回该用户不存在，用户不存在就是用username和email验证都返回的是true
+            return ServerResponse.createByError("该用户不存在");
+        }
+        //2、用户存在之后验证 token，如果 token验证成功，则执行更新该用户密码的操作
+        //如果用户存在，传入的username就不可能为空，所以不需要做非空判断
+        if(!StringUtils.isNotBlank(forgetToken)){
+            return ServerResponse.createByError("参数错误： token不能为空");
+        }
+        String key =  TokenCache.getKey(TokenCache.TOKEN_PREFIX+username);
+
+        if(StringUtils.equals(forgetToken, key)){
+            //验证成功执行更新密码操作
+            //注意：这里密码是需要加密后的密码存入数据库中的
+            String MD5NewPassword = MD5Util.MD5EncodeUtf8(newPassword);
+            int count = userMapper.updatePwdByUsername(username,MD5NewPassword);
+            if(count >0){
+                return ServerResponse.createBySuccess("修改密码成功");
+            }
+        }else{
+            return ServerResponse.createByError("token验证失败");
+        }
+        return ServerResponse.createByError("修改密码失败");
+
+        /*if(!forgetToken.equals(key)){  //可以用StringUtils里的方法验证，就不会出现nullpointE异常
+            return ServerResponse.createByError("token验证错误");
+        }*/
+
+    }
+
+    //重置填写新密码2
+    public ServerResponse<String> resetPassword2(String username, String newPassword, String forgetToken){
+        //1、先验证所有参数是否为空
+        if(StringUtils.isNotBlank(username)&&StringUtils.isNotBlank(newPassword)&&StringUtils.isNotBlank(forgetToken)){
+            //2、判断该用户是否存在
+            ServerResponse<String> checkNameResponse =  this.checkValid(username,Constant.USER_NAME);
+            if(checkNameResponse.isSuccess()){
+                //判断用户，如果不存在，就返回该用户不存在，用户不存在就是用username和email验证都返回的是true
+                return ServerResponse.createByError("该用户不存在");
+            }
+            //3、验证token
+            String key =  TokenCache.getKey(TokenCache.TOKEN_PREFIX+username);
+            if(forgetToken.equals(key)){
+                //4、执行更新操作
+                //注意：这里密码是需要加密后的密码存入数据库中的
+                String MD5NewPassword = MD5Util.MD5EncodeUtf8(newPassword);
+                int count = userMapper.updatePwdByUsername(username,MD5NewPassword);
+                if(count >0){
+                    return ServerResponse.createBySuccess("修改密码成功");
+                }
+            }else{
+                return ServerResponse.createByError("token验证失败");
+            }
+
+        }else{
+            return ServerResponse.createByError("参数异常：用户名、密码或者token为空");
+        }
+        return ServerResponse.createBySuccess("修改密码成功");
+    }
+
 }
