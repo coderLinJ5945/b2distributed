@@ -186,7 +186,7 @@ public class UserServiceImpl  implements IUserService{
 
     }
 
-    //重置填写新密码2
+    //重置填写新密码2 ,这个相对的1来说多判断了一个密码不为空
     public ServerResponse<String> resetPassword2(String username, String newPassword, String forgetToken){
         //1、先验证所有参数是否为空
         if(StringUtils.isNotBlank(username)&&StringUtils.isNotBlank(newPassword)&&StringUtils.isNotBlank(forgetToken)){
@@ -214,6 +214,60 @@ public class UserServiceImpl  implements IUserService{
             return ServerResponse.createByError("参数异常：用户名、密码或者token为空");
         }
         return ServerResponse.createBySuccess("修改密码成功");
+    }
+
+
+    //登录成功后修改密码
+    public ServerResponse<String> updatePassword(User user, String passwordOld, String passwordNew){
+        //1、判断参数不能为空
+        if(StringUtils.isNotBlank(passwordOld)&&StringUtils.isNotBlank(passwordNew)){
+            //2、根据用户名和passwordOld 匹配用户和当前密码
+            //注意的是这里面需要md5加密
+            String MD5passwordOld = MD5Util.MD5EncodeUtf8(passwordOld);
+            int count = userMapper.selectCountByUsernamePwd(user.getUsername(),MD5passwordOld);
+            if(count > 0){//验证该用户成功，执行修改密码操作
+                String MD5passwordNew = MD5Util.MD5EncodeUtf8(passwordNew);
+                int countNew = userMapper.updatePwdByUsername(user.getUsername(),MD5passwordNew);
+                if(countNew > 0){
+                    return ServerResponse.createBySuccess("修改密码成功");
+                }
+            }else{
+                return ServerResponse.createByError("用户验证失败：该用户和密码不比配");
+            }
+        }else{
+            return ServerResponse.createByError("参数异常：密码不能为空");
+        }
+        return ServerResponse.createByError("修改密码错误");
+
+    }
+
+    //修改用户信息
+    public ServerResponse<User> updateUser(User user){
+        //1、username不能被更改
+        /*
+            2、email更改的时候需要做一个验证，如果email是已存在其他用户的email，则更新失败
+            登录可以使用email，所以email必须要和id 一对一绑定
+         */
+
+        if(StringUtils.isNotBlank(user.getEmail())){
+            int count = userMapper.checkEmailById(user.getEmail(), user.getId());
+            if(count > 0){//email已经被其他用户使用
+                return ServerResponse.createByError("email已被使用，请更换绑定的email");
+            }
+        }
+        user.setUsername(null);//用户名不允许修改，将用户名置空
+        int count = userMapper.updateByPrimaryKeySelective(user);
+        if(count > 0){
+            User newUser = userMapper.selectByPrimaryKey(user.getId());
+            newUser.setPassword(StringUtils.EMPTY);//置空密码
+            return ServerResponse.createBySuccess("修改信息成功",newUser);
+        }
+        //这样写是不是太麻烦了？这里确实有点费解，当执行更新操作成功之后，返回的user对象是应该返回该对象的所有数据进行回填么？
+        /*updateUser.setId(user.getId());
+        updateUser.setPhone(user.getPhone());
+        updateUser.setQuestion(user.getQuestion());
+        updateUser.setAnswer(user.getAnswer());*/
+        return ServerResponse.createByError("修改信息失败");
     }
 
 }

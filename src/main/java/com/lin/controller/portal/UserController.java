@@ -2,6 +2,7 @@ package com.lin.controller.portal;
 
 
 import com.lin.common.Constant;
+import com.lin.common.ResponseCodeEnum;
 import com.lin.common.ServerResponse;
 import com.lin.pojo.User;
 import com.lin.service.IUserService;
@@ -35,9 +36,9 @@ public class UserController {
      * @param session(登录传入session？)
      * @return
      */
-    @RequestMapping(value = "login.do",method = {RequestMethod.POST,RequestMethod.GET})
+    @RequestMapping(value = "login.do",method = {RequestMethod.POST})
     @ResponseBody//将响应对象自动序列化成json
-    public Object login(String username, String password, HttpSession session){
+    public ServerResponse<User> login(String username, String password, HttpSession session){
         ServerResponse<User> response =  iUserService.login(username,password);
         if(response.isSuccess()){
             //只用将用户信息存入session
@@ -52,7 +53,7 @@ public class UserController {
      * @param session
      * @return
      */
-    @RequestMapping(value="logout.do", method = {RequestMethod.GET})
+    @RequestMapping(value="logout.do", method = {RequestMethod.POST})
     @ResponseBody
     public ServerResponse<String> logOut(HttpSession session){
         session.removeAttribute(Constant.CURRENT_USER);
@@ -69,8 +70,6 @@ public class UserController {
     public ServerResponse<String> register(User user){
         return iUserService.register(user);
     }
-
-
 
     /**
      *实时调用验证用户名或者邮箱接口
@@ -89,25 +88,22 @@ public class UserController {
      * @param session
      * @return
      */
-    @RequestMapping(value = "getUserInfo.do",method = {RequestMethod.GET})
+    @RequestMapping(value = "getUserInfo.do",method = {RequestMethod.POST})
     @ResponseBody
     public ServerResponse<User> getUserInfo(HttpSession session){
         User user = (User)session.getAttribute(Constant.CURRENT_USER);
         if(user == null){
-            return ServerResponse.createByError("用户未登录，无法获取用户信息");
+            return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),"用户未登录，无法获取用户信息");
         }
         return ServerResponse.createBySuccess(user);
     }
-
-
-    //
 
     /**用户忘记密码，选择问题方式重置密码(后面可以修改一下随机获取一个问题，返回到前端进行验证)
      * 获取用户忘记密码的问题接口
      * @param username
      * @return
      */
-    @RequestMapping(value = "getQuestion.do",method = {RequestMethod.GET})
+    @RequestMapping(value = "getQuestion.do",method = {RequestMethod.POST})
     @ResponseBody
     public ServerResponse<String> getQuestion(String username){
         return  iUserService.getQuestion(username);
@@ -120,17 +116,14 @@ public class UserController {
      * @param answer
      * @return 如果问题回答正确，返回一个带有时效性的token
      */
-    @RequestMapping(value = "checkForgetAnswer.do",method = {RequestMethod.GET,RequestMethod.POST})
+    @RequestMapping(value = "checkForgetAnswer.do",method = {RequestMethod.POST})
     @ResponseBody
     public ServerResponse<String> checkForgetAnswer(String username,String question,String answer){
         return  iUserService.checkForgetAnswer(username,question,answer);
     }
 
-
-    //忘记密码中的重置密码
-
     /**
-     *
+     * 忘记密码中的重置密码
      * @param username 重置的用户名
      * @param newPassword 重置的新密码
      * @param forgetToken 回答问题之后返回到前端的token 钥匙
@@ -143,8 +136,43 @@ public class UserController {
         return iUserService.resetPassword2(username, newPassword, forgetToken);//重置密码思路2
     }
 
+    /**
+     * 登录状态下的修改密码
+     * @param session session 中获取用户
+     * @param passwordOld  passwordOld密码和用户做匹配，防止横向越权
+     * @param passwordNew  新密码
+     * @return
+     */
+    @RequestMapping(value = "updatePassword.do",method = {RequestMethod.POST})
+    @ResponseBody
+    public ServerResponse<String>  updatePassword(HttpSession session, String passwordOld, String passwordNew){
+        User user = (User) session.getAttribute(Constant.CURRENT_USER);
+        if(user == null){
+            return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),"用户未登录");
+        }
+        return iUserService.updatePassword(user, passwordOld, passwordNew);
+    }
 
-
-
+    /**
+     * 修改用户信息
+     * @param session
+     * @param user
+     * @return
+     */
+    @RequestMapping(value = "updateUserMassage.do",method = {RequestMethod.POST})
+    @ResponseBody
+    public ServerResponse<User> updateUserMassage(HttpSession session, User user){
+        //1、判断用户是否登录
+       User currentUser = (User) session.getAttribute(Constant.CURRENT_USER);
+       if(currentUser == null){
+           return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),"用户未登录");
+       }
+       user.setId(currentUser.getId());
+       ServerResponse<User> response =   iUserService.updateUser(user);
+       if(response.isSuccess()){
+           session.setAttribute(Constant.CURRENT_USER,response.getData());
+       }
+        return response;
+    }
 
 }

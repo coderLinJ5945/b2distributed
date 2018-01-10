@@ -24,4 +24,11 @@ public interface IUserService {
 
     //重置填写新密码2
     ServerResponse<String> resetPassword2(String username, String newPassword, String forgetToken);
+
+    //登录成功后修改密码
+    ServerResponse<String> updatePassword(User user, String passwordOld, String passwordNew);
+
+    //修改用户信息
+    ServerResponse<User> updateUser(User user);
+
 }

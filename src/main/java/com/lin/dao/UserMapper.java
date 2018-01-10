@@ -12,6 +12,7 @@ public interface UserMapper {
 
     User selectByPrimaryKey(Integer id);
 
+    //只更新传入的部分不为null的字段
     int updateByPrimaryKeySelective(User record);
 
     //根据用户名修改密码
@@ -34,4 +35,10 @@ public interface UserMapper {
         因为参数都是String，所以特意加@Param标签区分
      */
     int checkForgetAnswer(@Param("username") String username,@Param("question") String question,@Param("answer") String answer);
+
+    // 根据用户名和passwordOld 匹配用户和当前密码
+    int selectCountByUsernamePwd(@Param("username") String username,@Param("password") String password);
+
+    //根据主键验证email是否已存在与其他用户
+    int checkEmailById(@Param("email")String email, @Param("id")Integer id);
 }
