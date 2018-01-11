@@ -31,4 +31,7 @@ public interface IUserService {
     //修改用户信息
     ServerResponse<User> updateUser(User user);
 
+    //检查是否是管理员用户
+    ServerResponse checkAdminRole(User user);
+
 }

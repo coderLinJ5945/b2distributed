@@ -5,7 +5,7 @@ import java.util.Date;
 public class Category {
     private Integer id;
 
-    private Integer parentId;
+    private Integer parentId =0;//商品分类父id默认为0
 
     private String name;
 

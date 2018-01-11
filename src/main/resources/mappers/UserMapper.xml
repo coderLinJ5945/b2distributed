@@ -41,68 +41,74 @@
   <insert id="insertSelective" parameterType="com.lin.pojo.User" >
     insert into mmall_user
     <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
+      <if test="id != null and id !=''" >
         id,
       </if>
-      <if test="username != null" >
+      <if test="username != null and username !=''" >
         username,
       </if>
-      <if test="password != null" >
+      <if test="password != null and password !=''" >
         password,
       </if>
-      <if test="email != null" >
+      <if test="email != null and email !=''" >
         email,
       </if>
-      <if test="phone != null" >
+      <if test="phone != null and phone !=''" >
         phone,
       </if>
-      <if test="question != null" >
+      <if test="question != null and question !=''" >
         question,
       </if>
-      <if test="answer != null" >
+      <if test="answer != null and answer !=''" >
         answer,
       </if>
-      <if test="role != null" >
+      <if test="role != null and role !=''" >
         role,
       </if>
-      <if test="createTime != null" >
-        create_time,
-      </if>
-      <if test="updateTime != null" >
-        update_time,
-      </if>
+      create_time,
+      update_time,
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
+      <if test="id != null and id !=''" >
         #{id,jdbcType=INTEGER},
       </if>
-      <if test="username != null" >
+      <if test="username != null and username !=''" >
         #{username,jdbcType=VARCHAR},
       </if>
-      <if test="password != null" >
+      <if test="password != null and password !=''" >
         #{password,jdbcType=VARCHAR},
       </if>
-      <if test="email != null" >
+      <if test="email != null and email !=''" >
         #{email,jdbcType=VARCHAR},
       </if>
-      <if test="phone != null" >
+      <if test="phone != null and phone !=''" >
         #{phone,jdbcType=VARCHAR},
       </if>
-      <if test="question != null" >
+      <if test="question != null and question !=''" >
         #{question,jdbcType=VARCHAR},
       </if>
-      <if test="answer != null" >
+      <if test="answer != null and answer !=''" >
         #{answer,jdbcType=VARCHAR},
       </if>
-      <if test="role != null" >
+      <if test="role != null and role !=''" >
         #{role,jdbcType=INTEGER},
       </if>
-      <if test="createTime != null" >
-        #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updateTime != null" >
-        #{updateTime,jdbcType=TIMESTAMP},
-      </if>
+      <choose>
+        <when test="createTime != null and createTime !=''">
+          #{createTime,jdbcType=TIMESTAMP},
+        </when>
+        <otherwise>
+          now(),
+        </otherwise>
+      </choose>
+      <choose>
+        <when test="updateTime != null and updateTime !=''">
+          #{updateTime,jdbcType=TIMESTAMP},
+        </when>
+        <otherwise>
+          now(),
+        </otherwise>
+      </choose>
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.lin.pojo.User" >
@@ -161,12 +167,12 @@
 
   <select id="checkUsername" resultType="int" parameterType="string" >
     select count(1) from mmall_user
-    where username = #{username}
+    where username = #{username,jdbcType=VARCHAR}
   </select>
 
   <select id="checkEmail" resultType="int" parameterType="string" >
     select count(1) from mmall_user
-    where email = #{username}
+    where email = #{username,jdbcType=VARCHAR}
   </select>
 
   <select id="loginCheckedPwd" resultMap="BaseResultMap" parameterType="map">

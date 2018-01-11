@@ -75,7 +75,8 @@ public class UserServiceImpl  implements IUserService{
         user.setRole(Constant.Role.ROLE_CUSTOMER);
         //md5加密
         user.setPassword(MD5Util.MD5EncodeUtf8(user.getPassword()));
-        int  count =  userMapper.insert(user);
+        //int  count =  userMapper.insert(user);
+        int  count =  userMapper.insertSelective(user);
         if(count == 0){
             return ServerResponse.createByError("注册失败");
         }
@@ -268,6 +269,16 @@ public class UserServiceImpl  implements IUserService{
         updateUser.setQuestion(user.getQuestion());
         updateUser.setAnswer(user.getAnswer());*/
         return ServerResponse.createByError("修改信息失败");
+    }
+
+
+    //检查是否是管理员用户,不需要查询数据库
+    public ServerResponse checkAdminRole(User user){
+        Integer role = user.getRole();
+        if(role == Constant.Role.ROLE_ADMIN){
+            return ServerResponse.createBySuccess();
+        }
+        return ServerResponse.createByError();
     }
 
 }

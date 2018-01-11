@@ -30,13 +30,13 @@ public class UserController {
      *
      */
     /**
-     *  用户登录
+     *  用户登录 ok
      * @param username
      * @param password
      * @param session(登录传入session？)
      * @return
      */
-    @RequestMapping(value = "login.do",method = {RequestMethod.POST})
+    @RequestMapping(value = "login.do",method = {RequestMethod.GET,RequestMethod.POST})
     @ResponseBody//将响应对象自动序列化成json
     public ServerResponse<User> login(String username, String password, HttpSession session){
         ServerResponse<User> response =  iUserService.login(username,password);
@@ -49,7 +49,7 @@ public class UserController {
     }
 
     /**
-     * 登出
+     * 登出 ok
      * @param session
      * @return
      */
@@ -61,7 +61,7 @@ public class UserController {
     }
 
     /**
-     * 注册
+     * 注册 ok
      * @param user
      * @return
      */
@@ -72,7 +72,7 @@ public class UserController {
     }
 
     /**
-     *实时调用验证用户名或者邮箱接口
+     * 实时调用验证用户名或者邮箱接口 ok
      * @param str 验证的内容
      * @param type 验证的类型
      * @return
@@ -84,7 +84,7 @@ public class UserController {
     }
 
     /**
-     * 获取用户信息接口
+     * 获取用户信息接口 ok
      * @param session
      * @return
      */
@@ -99,7 +99,7 @@ public class UserController {
     }
 
     /**用户忘记密码，选择问题方式重置密码(后面可以修改一下随机获取一个问题，返回到前端进行验证)
-     * 获取用户忘记密码的问题接口
+     * 获取用户忘记密码的问题接口 ok
      * @param username
      * @return
      */
@@ -110,7 +110,7 @@ public class UserController {
     }
 
     /**
-     * 校验问题答案（校验成功之后，使用guava缓存存储token）
+     * 校验问题答案（校验成功之后，使用guava缓存存储token） ok
      * @param username
      * @param question
      * @param answer
@@ -123,7 +123,7 @@ public class UserController {
     }
 
     /**
-     * 忘记密码中的重置密码
+     * 忘记密码中的重置密码 ok
      * @param username 重置的用户名
      * @param newPassword 重置的新密码
      * @param forgetToken 回答问题之后返回到前端的token 钥匙
