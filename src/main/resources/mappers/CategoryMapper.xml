@@ -126,4 +126,13 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+
+  <select id="getOneLevelChildCategory" parameterType="integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from mmall_category
+    where status = 1
+    and parent_id = #{id,jdbcType=INTEGER}
+  </select>
 </mapper>

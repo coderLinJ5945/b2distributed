@@ -7,10 +7,12 @@ import com.lin.pojo.Category;
 import com.lin.pojo.User;
 import com.lin.service.ICategoryService;
 import com.lin.service.IUserService;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
@@ -55,10 +57,44 @@ public class CategoryManageController {
         if(user == null){
             return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),"用户未登录，请重新登录");
         }
-        if(category != null ){
-            //执行更新操作
-            iCategoryService.updateCategoryById(category);
+        // 2、判断是否是管理员
+        ServerResponse roleResponse =  iUserService.checkAdminRole(user);
+        if(roleResponse.isSuccess()){
+            if(category != null ){
+                //执行更新操作
+                iCategoryService.updateCategoryById(category);
+            }
+        }else{
+            return ServerResponse.createByError("无权限操作，需要管理员权限");
         }
         return ServerResponse.createByError("参数异常");
     }
+
+    /**
+     * 树展开事件，根据当前节点id 获取当前节点下的（一级）子节点信息
+     * @param session
+     * @param gategoryId 商品分类id
+     * @return
+     */
+    @RequestMapping(value = "getOneLevelChildCategory.do",method = {RequestMethod.POST})
+    @ResponseBody
+    public ServerResponse getOneLevelChildCategory(HttpSession session,@RequestParam(value = "gategoryId",required = true) Integer gategoryId){
+        User user = (User)session.getAttribute(Constant.CURRENT_USER);
+        if(user == null){
+            return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),"用户未登录，请重新登录");
+        }
+        ServerResponse roleResponse =  iUserService.checkAdminRole(user);
+        if(roleResponse.isSuccess()){
+            return iCategoryService.getOneLevelChildCategory(gategoryId);
+        }else{
+            return ServerResponse.createByError("无权限操作，需要管理员权限");
+        }
+    }
+
+
+
+
+
+
+
 }

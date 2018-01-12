@@ -4,11 +4,18 @@ import com.lin.common.ServerResponse;
 import com.lin.dao.CategoryMapper;
 import com.lin.pojo.Category;
 import com.lin.service.ICategoryService;
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service("iCategoryService")
 public class CategoryServiceImpl implements ICategoryService{
+
+    private Logger logger = LoggerFactory.getLogger(CategoryServiceImpl.class);
 
     @Autowired
     private CategoryMapper categoryMapper;
@@ -37,6 +44,15 @@ public class CategoryServiceImpl implements ICategoryService{
             return ServerResponse.createByError("更新商品分类失败");
         }
         return ServerResponse.createByError("商品分类参数异常");
+    }
+
+    //树展开事件，根据当前节点id 获取当前节点下的（一级）子节点信息
+    public ServerResponse<List<Category>>getOneLevelChildCategory(Integer categoryId){
+        List<Category> list = categoryMapper.getOneLevelChildCategory(categoryId);
+        if(CollectionUtils.isEmpty(list)){//未找到的时候不算报错，只需要日志记录返回前台的data为空就行
+            logger.info("商品分类： 未找到当前分类的子分类");
+        }
+        return ServerResponse.createBySuccess(list);
     }
 
 }

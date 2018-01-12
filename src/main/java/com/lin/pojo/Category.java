@@ -86,4 +86,25 @@ public class Category {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+    //重写 Equals 和 hashCode
+    /*
+        hashCode 一样 equals方法比较的时候也有可能返回 false
+        原因：如果hashCode 只取了id但是equals 方法将其他的值也加入进来做比较，就会返回false
+        所以：重写equals 和hashCode最好一起重写
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Category)) return false;
+
+        Category category = (Category) o;
+
+        return id != null ? id.equals(category.id) : category.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }
