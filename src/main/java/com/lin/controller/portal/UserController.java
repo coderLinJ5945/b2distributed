@@ -148,7 +148,7 @@ public class UserController {
     public ServerResponse<String>  updatePassword(HttpSession session, String passwordOld, String passwordNew){
         User user = (User) session.getAttribute(Constant.CURRENT_USER);
         if(user == null){
-            return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),"用户未登录");
+            return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),ResponseCodeEnum.NEED_LOGIN.getProductDesc());
         }
         return iUserService.updatePassword(user, passwordOld, passwordNew);
     }
@@ -165,7 +165,7 @@ public class UserController {
         //1、判断用户是否登录
        User currentUser = (User) session.getAttribute(Constant.CURRENT_USER);
        if(currentUser == null){
-           return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),"用户未登录");
+           return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),ResponseCodeEnum.NEED_LOGIN.getProductDesc());
        }
        user.setId(currentUser.getId());
        ServerResponse<User> response =   iUserService.updateUser(user);

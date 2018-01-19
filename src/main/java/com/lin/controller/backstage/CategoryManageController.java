@@ -7,7 +7,6 @@ import com.lin.pojo.Category;
 import com.lin.pojo.User;
 import com.lin.service.ICategoryService;
 import com.lin.service.IUserService;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,7 +37,7 @@ public class CategoryManageController {
         //1、判断是否登录
         User user =  (User)session.getAttribute(Constant.CURRENT_USER);
         if(user == null){
-            return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),"用户未登录，请重新登录");
+            return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),ResponseCodeEnum.NEED_LOGIN.getProductDesc());
         }
         // 2、判断是否是管理员
         ServerResponse roleResponse =  iUserService.checkAdminRole(user);
@@ -55,7 +54,7 @@ public class CategoryManageController {
     public ServerResponse<String> updateCategory(HttpSession session, Category category){
         User user = (User) session.getAttribute(Constant.CURRENT_USER);
         if(user == null){
-            return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),"用户未登录，请重新登录");
+            return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),ResponseCodeEnum.NEED_LOGIN.getProductDesc());
         }
         // 2、判断是否是管理员
         ServerResponse roleResponse =  iUserService.checkAdminRole(user);
@@ -81,7 +80,7 @@ public class CategoryManageController {
     public ServerResponse getOneLevelChildCategory(HttpSession session,@RequestParam(value = "gategoryId",required = true) Integer gategoryId){
         User user = (User)session.getAttribute(Constant.CURRENT_USER);
         if(user == null){
-            return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),"用户未登录，请重新登录");
+            return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),ResponseCodeEnum.NEED_LOGIN.getProductDesc());
         }
         ServerResponse roleResponse =  iUserService.checkAdminRole(user);
         if(roleResponse.isSuccess()){
@@ -91,8 +90,35 @@ public class CategoryManageController {
         }
     }
 
+    /**
+     * 递归获取当前商品分类的所有子商品信息
+     * @param session
+     * @param gategoryId
+     * @return
+     */
+    @RequestMapping(value = "getCategoryAndDeepChildrenCategory.do",method = {RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public ServerResponse getCategoryAndDeepChildrenCategory (HttpSession session, @RequestParam(value = "gategoryId",required = true ) Integer gategoryId){
+        /**思路：1.判断用户是否登录 2.判断用户是否有权限 3、传入商品分类id 执行递归操作，返回当前商品分类的所有树信息*/
 
+        User user = (User)session.getAttribute(Constant.CURRENT_USER);
+        if (user != null) {
+            return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),ResponseCodeEnum.NEED_LOGIN.getProductDesc());
+        }
+        ServerResponse roleResponse =  iUserService.checkAdminRole(user);
+        if(roleResponse.isSuccess()){
+            // 3、传入商品分类id 执行递归操作，返回当前商品分类的所有树信息
+            return iCategoryService.getCategoryAndDeepChildrenCategory(gategoryId);
+        }else{
+            return ServerResponse.createByError("无权限操作，需要管理员权限");
+        }
+    }
 
+    /*
+        todo
+        不明白为什么少一个删除接口，数据库只设计了一个status字段，
+        如果用status字段进行逻辑删除，则执行更新操作修改status就行
+     */
 
 
 

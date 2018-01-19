@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service("iCategoryService")
@@ -53,6 +54,41 @@ public class CategoryServiceImpl implements ICategoryService{
             logger.info("商品分类： 未找到当前分类的子分类");
         }
         return ServerResponse.createBySuccess(list);
+    }
+
+    //传入商品分类id 执行递归操作，返回当前商品分类的所有树信息
+    public ServerResponse<List<Category>> getCategoryAndDeepChildrenCategory(Integer gategoryId){
+        /*
+            个人理解： 这里用list 的原因，是根据主键去数据库查询，
+                        所以根本不会出现重复数据，不需要使用set集合
+         */
+        List<Category> list =  new ArrayList<>();
+        recursiveFindChildCategory(list,gategoryId);
+        return ServerResponse.createBySuccess(list) ;
+    }
+    //递归查询获取商品树
+
+    /**
+     *
+     * @param list 递归要返回的对象
+     * @param gategoryId 商品id参数
+     * @return
+     */
+    public  List<Category> recursiveFindChildCategory(List<Category> list, Integer gategoryId){
+        //查询当前商品分类
+        Category category = categoryMapper.selectByPrimaryKey(gategoryId);
+        if (category != null) {
+            //添加当前商品分类
+            list.add(category);
+            //查询子商品分类
+            List<Category> categoryChildren = categoryMapper.getOneLevelChildCategory(gategoryId);
+            if(!categoryChildren.isEmpty()){
+                for (Category categoryChild : categoryChildren) {
+                    recursiveFindChildCategory(list,categoryChild.getId());
+                }
+            }
+        }
+        return list;
     }
 
 }

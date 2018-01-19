@@ -8,18 +8,21 @@ public enum ResponseCodeEnum {
      * 4、code和desc 用public开放出去
      */
     //定义枚举的时候是用逗号分隔，不是用分号！！！
-    SUCCESS(0 ,"SUCCESS"),//成功
-    ERROR(1,"ERROR"),//失败
-    NEED_LOGIN(10,"NEED_LOGIN"),//未登录
-    ILLEGAL_ARGUMENT(20,"ILLEGAL_ARGUMENT");//错误参数
+    SUCCESS(0 ,"SUCCESS","成功"),//成功
+    ERROR(1,"ERROR","失败"),//失败
+    NEED_LOGIN(10,"NEED_LOGIN","未登录"),//未登录
+    ILLEGAL_ARGUMENT(20,"ILLEGAL_ARGUMENT","错误参数");//错误参数
 
     private final int code;
 
-    private final  String desc;
+    private final  String desc;//描述
 
-      ResponseCodeEnum(int code,String desc){
+    private  final  String productDesc;//中文描述
+
+      ResponseCodeEnum(int code,String desc, String productDesc){
         this.code = code;
         this.desc = desc;
+        this.productDesc = productDesc;
     }
 
     public int getCode() {
@@ -29,6 +32,7 @@ public enum ResponseCodeEnum {
     public String getDesc() {
         return desc;
     }
-
-
+    public String getProductDesc() {
+        return productDesc;
+    }
 }
