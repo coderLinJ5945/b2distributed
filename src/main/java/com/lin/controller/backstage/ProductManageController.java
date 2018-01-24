@@ -26,11 +26,11 @@ public class ProductManageController {
 
     @Autowired
     private IProductService iProductService;
-
     //商品保存方法（新增、修改）
     @RequestMapping(value = "productSave.do", method = {RequestMethod.POST,RequestMethod.GET})
     @ResponseBody
     public ServerResponse productSave(HttpSession session, Product product){
+        System.out.println();
         User user = (User) session.getAttribute(Constant.CURRENT_USER);
         if (user == null) {
             return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),ResponseCodeEnum.NEED_LOGIN.getProductDesc());
