@@ -16,7 +16,7 @@ import javax.servlet.http.HttpSession;
  * 后台管理员用户相关接口
  */
 @Controller
-@RequestMapping(value = "/manage/user/")
+@RequestMapping(value = "/manage/user")
 public class UserManageController {
 
     @Autowired

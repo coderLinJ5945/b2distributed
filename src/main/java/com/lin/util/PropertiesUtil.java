@@ -9,14 +9,15 @@ import java.io.InputStreamReader;
 import java.util.Properties;
 
 /**
- * Created by geely
+ * Created by linj
+ * 读取 properties配置文件工具
  */
 public class PropertiesUtil {
 
     private static Logger logger = LoggerFactory.getLogger(PropertiesUtil.class);
 
     private static Properties props;
-
+    //todo 这里如果有多个配置文件，需要修改一下静态块写法
     static {
         String fileName = "jdbc.properties";
         props = new Properties();

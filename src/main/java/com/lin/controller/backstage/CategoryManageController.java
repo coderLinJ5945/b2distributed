@@ -20,7 +20,7 @@ import javax.servlet.http.HttpSession;
  * 商品分类管理
  */
 @Controller
-@RequestMapping("/manage/category/")
+@RequestMapping("/manage/category")
 public class CategoryManageController {
     @Autowired
     private IUserService iUserService;
@@ -102,7 +102,7 @@ public class CategoryManageController {
         /**思路：1.判断用户是否登录 2.判断用户是否有权限 3、传入商品分类id 执行递归操作，返回当前商品分类的所有树信息*/
 
         User user = (User)session.getAttribute(Constant.CURRENT_USER);
-        if (user != null) {
+        if (user == null) {
             return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(),ResponseCodeEnum.NEED_LOGIN.getProductDesc());
         }
         ServerResponse roleResponse =  iUserService.checkAdminRole(user);
@@ -113,7 +113,6 @@ public class CategoryManageController {
             return ServerResponse.createByError("无权限操作，需要管理员权限");
         }
     }
-
     /*
         todo
         不明白为什么少一个删除接口，数据库只设计了一个status字段，
