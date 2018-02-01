@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *  商品相关接口（后台）
@@ -153,10 +155,16 @@ public class ProductManageController {
         if (response.isSuccess()) {
             if(!file.isEmpty()){
                 //String path = session.getServletContext().getRealPath("upload");//tomcat的目录
-                //todo 有个疑问虚拟路径是否需要在同一个tomcat中，做一个测试
-                String path = PropertiesUtil.getProperty("tomcat.virtualPath");
-                iFileService.upload(file,path);
-                return ServerResponse.createBySuccess();
+                //这里暂时使用tomcat虚拟路径代替ftp服务器
+                //<Context docBase="D:/linj/upload/" path="/virtualPath" />
+                String path = PropertiesUtil.getProperty("tomcat.docBase");
+                String newFileName = iFileService.upload(file,path);
+                Map resultMap = new HashMap();
+                resultMap.put("fileName",newFileName);
+                //这里的url直接传tomcat配置的虚拟路径的path吧
+                resultMap.put("url",PropertiesUtil.getProperty("tomcat.virtualPath","http://localhost:8080/virtualPath/") );
+
+                return ServerResponse.createBySuccess(resultMap);
             }
         }
         return ServerResponse.createByError("上传文件失败");

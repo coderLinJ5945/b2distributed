@@ -2,21 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.lin.dao.ProductMapper" >
   <resultMap id="BaseResultMap" type="com.lin.pojo.Product" >
-    <constructor >
-      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="category_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="subtitle" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="main_image" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="sub_images" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="detail" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="price" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
-      <arg column="stock" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="status" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
-      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
-    </constructor>
-  </resultMap>
+  <constructor >
+    <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+    <arg column="category_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+    <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String" />
+    <arg column="subtitle" jdbcType="VARCHAR" javaType="java.lang.String" />
+    <arg column="main_image" jdbcType="VARCHAR" javaType="java.lang.String" />
+    <arg column="sub_images" jdbcType="VARCHAR" javaType="java.lang.String" />
+    <arg column="detail" jdbcType="VARCHAR" javaType="java.lang.String" />
+    <arg column="price" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+    <arg column="stock" jdbcType="INTEGER" javaType="java.lang.Integer" />
+    <arg column="status" jdbcType="INTEGER" javaType="java.lang.Integer" />
+    <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+  </constructor>
+</resultMap>
+
   <sql id="Base_Column_List" >
     id, category_id, name, subtitle, main_image, sub_images, detail, price, stock, status, 
     create_time, update_time
@@ -176,4 +177,25 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <update id="updateStatusByPrimaryKey" parameterType="map">
+    update mmall_product
+    set status = #{status, jdbcType=INTEGER}
+    where  id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectByNameAndProductId" resultMap="BaseResultMap" parameterType="map">
+    SELECT
+    <include refid="Base_Column_List"/>
+    from mmall_product
+    <where>
+      <if test="productName != null">
+        and name like #{productName}
+      </if>
+      <if test="productId != null">
+        and id = #{productId}
+      </if>
+    </where>
+  </select>
+
 </mapper>

@@ -27,14 +27,14 @@ public class IFileServiceImpl implements IFileService {
             fileDir.setWritable(true);//文件写入权限
         }
         try {
-            file.transferTo(fileDir);//上传到tomcat零时文件
-
-
+            //todo 暂时只上传到tomcat零时文件 后续需要上传到ftp文件服务器中
+            file.transferTo(fileDir);
+            //fileDir.delete();
         } catch (IOException e) {
-            e.printStackTrace();
             logger.info("文件上传失败：", e);
+            return null;
         }
+        return fileDir.getName();
 
-        return null;
     }
 }
