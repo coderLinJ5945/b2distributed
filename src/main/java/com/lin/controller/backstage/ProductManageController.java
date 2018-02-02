@@ -1,5 +1,7 @@
 package com.lin.controller.backstage;
 
+import com.google.common.collect.Maps;
+import com.google.gson.JsonObject;
 import com.lin.common.Constant;
 import com.lin.common.ResponseCodeEnum;
 import com.lin.common.ServerResponse;
@@ -9,6 +11,7 @@ import com.lin.service.IFileService;
 import com.lin.service.IProductService;
 import com.lin.service.IUserService;
 import com.lin.util.PropertiesUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
@@ -126,8 +131,40 @@ public class ProductManageController {
     /*
      富文本上传编辑器: wangEditor 、simditor 、bootstrap-wysiwyg 、CKEditor 、tinymce
      */
+    //3.富文本上传：目前是使用simditor所以按照simditor的要求进行返回    打算使用：wangEditor
+    /* 返回格式：
+               "success": true/false,
+               "msg": "error message", # optional
+               "file_path": "[real file path]"
+     */
+    @RequestMapping(value = "richTextImgUpload.do" , method = {RequestMethod.GET , RequestMethod.POST})
+    @ResponseBody
+    public Map richTextImgUpload(HttpSession session , @RequestParam(value = "upload_file", required = false) MultipartFile file, HttpServletResponse response){
+        Map resultMap = new HashMap();
+        User user = (User) session.getAttribute(Constant.CURRENT_USER);
+        if (user == null) {
+            resultMap.put("success",false);
+            resultMap.put("msg",ResponseCodeEnum.NEED_LOGIN.getDesc());
+            return resultMap;
+        }
+        ServerResponse responseRole = iUserService.checkAdminRole(user);
+        if (responseRole.isSuccess()) {
+            String path = PropertiesUtil.getProperty("tomcat.docBase");
+            String newFileName = iFileService.upload(file,path);
+            if(StringUtils.isNotBlank(newFileName)){
+                resultMap.put("success",true);
+                resultMap.put("msg","富文本图片上传成功");
+                resultMap.put("file_path",PropertiesUtil.getProperty("tomcat.virtualPath","http://localhost:8080/virtualPath/")+newFileName);
+                response.setHeader("Access-Control-Allow-Headers","X-File-Name");
+                return resultMap;
+            }
+        }
+        resultMap.put("success",false);
+        resultMap.put("msg","无权限操作");
+        return resultMap;
 
-    //3.富文本上传： 打算使用：wangEditor
+    }
+
     //4.文件上传（主要是图片），前端打算用bootstrap-fileInput
     /*
         文件上传思路： 打算做两种：a、配置tomcat 虚拟路径 b、FTP服务器
@@ -154,7 +191,6 @@ public class ProductManageController {
         ServerResponse response = iUserService.checkAdminRole(user);
         if (response.isSuccess()) {
             if(!file.isEmpty()){
-                //String path = session.getServletContext().getRealPath("upload");//tomcat的目录
                 //这里暂时使用tomcat虚拟路径代替ftp服务器
                 //<Context docBase="D:/linj/upload/" path="/virtualPath" />
                 String path = PropertiesUtil.getProperty("tomcat.docBase");
@@ -162,15 +198,41 @@ public class ProductManageController {
                 Map resultMap = new HashMap();
                 resultMap.put("fileName",newFileName);
                 //这里的url直接传tomcat配置的虚拟路径的path吧
-                resultMap.put("url",PropertiesUtil.getProperty("tomcat.virtualPath","http://localhost:8080/virtualPath/") );
-
+                resultMap.put("url",PropertiesUtil.getProperty("tomcat.virtualPath","http://localhost:8080/virtualPath/")+newFileName);
                 return ServerResponse.createBySuccess(resultMap);
             }
         }
         return ServerResponse.createByError("上传文件失败");
     }
 
-
-
+    /**
+     * 上传到ftp服务器
+     * @param session
+     * @param file
+     * @param request
+     * @return
+     */
+    @RequestMapping("upload2.do")
+    @ResponseBody
+    public ServerResponse upload2(HttpSession session,@RequestParam(value = "upload_file",required = false) MultipartFile file,HttpServletRequest request){
+        User user = (User) session.getAttribute(Constant.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByError(ResponseCodeEnum.NEED_LOGIN.getCode(), ResponseCodeEnum.NEED_LOGIN.getProductDesc());
+        }
+        ServerResponse response = iUserService.checkAdminRole(user);
+        if (response.isSuccess()) {
+            if(!file.isEmpty()){
+                String path = request.getSession().getServletContext().getRealPath("upload");
+                String targetFileName = iFileService.upload2(file,path);
+                String url = PropertiesUtil.getProperty("ftp.server.http.prefix")+targetFileName;
+                Map fileMap = Maps.newHashMap();
+                fileMap.put("uri",targetFileName);
+                fileMap.put("url",url);
+                //response.addHeader("Access-Control-Allow-Headers","X-File-Name");
+                return ServerResponse.createBySuccess(fileMap);
+            }
+        }
+        return ServerResponse.createByError("上传文件失败");
+    }
 
 }

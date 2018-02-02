@@ -1,6 +1,8 @@
 package com.lin.service.impl;
 
+import com.google.common.collect.Lists;
 import com.lin.service.IFileService;
+import com.lin.util.FTPUtil;
 import com.sun.org.apache.xpath.internal.SourceTree;
 import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.slf4j.Logger;
@@ -27,7 +29,6 @@ public class IFileServiceImpl implements IFileService {
             fileDir.setWritable(true);//文件写入权限
         }
         try {
-            //todo 暂时只上传到tomcat零时文件 后续需要上传到ftp文件服务器中
             file.transferTo(fileDir);
             //fileDir.delete();
         } catch (IOException e) {
@@ -36,5 +37,32 @@ public class IFileServiceImpl implements IFileService {
         }
         return fileDir.getName();
 
+    }
+
+    public String upload2(MultipartFile file,String path){
+        String fileName = file.getOriginalFilename();
+        //扩展名
+        //abc.jpg
+        String fileExtensionName = fileName.substring(fileName.lastIndexOf(".")+1);
+        String uploadFileName = UUID.randomUUID().toString()+"."+fileExtensionName;
+        logger.info("开始上传文件,上传文件的文件名:{},上传的路径:{},新文件名:{}",fileName,path,uploadFileName);
+        File fileDir = new File(path);
+        if(!fileDir.exists()){
+            fileDir.setWritable(true);
+            fileDir.mkdirs();
+        }
+        File targetFile = new File(path,uploadFileName);
+        try {
+            //将页面文件写入到硬盘中，再讲硬盘中的文件写入到ftp服务器
+            file.transferTo(targetFile);
+            //图片文件已经上传成功了
+            FTPUtil.uploadFile(Lists.newArrayList(targetFile));
+            //已经上传到ftp服务器上
+            targetFile.delete();
+        } catch (IOException e) {
+            logger.error("上传文件异常",e);
+            return null;
+        }
+        return targetFile.getName();
     }
 }
