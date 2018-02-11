@@ -41,7 +41,7 @@
   <insert id="insertSelective" parameterType="com.lin.pojo.User" >
     insert into mmall_user
     <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null and id !=''" >
+      <if test="id != null " >
         id,
       </if>
       <if test="username != null and username !=''" >
@@ -62,14 +62,14 @@
       <if test="answer != null and answer !=''" >
         answer,
       </if>
-      <if test="role != null and role !=''" >
+      <if test="role != null" >
         role,
       </if>
       create_time,
       update_time,
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null and id !=''" >
+      <if test="id != null" >
         #{id,jdbcType=INTEGER},
       </if>
       <if test="username != null and username !=''" >
@@ -90,11 +90,11 @@
       <if test="answer != null and answer !=''" >
         #{answer,jdbcType=VARCHAR},
       </if>
-      <if test="role != null and role !=''" >
+      <if test="role != null" >
         #{role,jdbcType=INTEGER},
       </if>
       <choose>
-        <when test="createTime != null and createTime !=''">
+        <when test="createTime != null">
           #{createTime,jdbcType=TIMESTAMP},
         </when>
         <otherwise>
@@ -102,7 +102,7 @@
         </otherwise>
       </choose>
       <choose>
-        <when test="updateTime != null and updateTime !=''">
+        <when test="updateTime != null">
           #{updateTime,jdbcType=TIMESTAMP},
         </when>
         <otherwise>

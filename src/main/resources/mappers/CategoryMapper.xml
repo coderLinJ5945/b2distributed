@@ -75,7 +75,7 @@
         #{sortOrder,jdbcType=INTEGER},
       </if>
       <choose>
-        <when test="createTime != null and createTime !=''">
+        <when test="createTime != null">
           #{createTime,jdbcType=TIMESTAMP},
         </when>
         <otherwise>
@@ -83,7 +83,7 @@
         </otherwise>
       </choose>
       <choose>
-        <when test="updateTime != null and updateTime !=''">
+        <when test="updateTime != null">
           #{updateTime,jdbcType=TIMESTAMP},
         </when>
         <otherwise>

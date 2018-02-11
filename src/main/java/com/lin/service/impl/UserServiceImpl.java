@@ -72,10 +72,12 @@ public class UserServiceImpl  implements IUserService{
             return ServerResponse.createByError("该邮箱已被注册");
         }*/
         //给用户添加默认角色
-        user.setRole(Constant.Role.ROLE_CUSTOMER);
+        //user.setRole(Constant.Role.ROLE_CUSTOMER);
+        user.setRole(2);
         //md5加密
         user.setPassword(MD5Util.MD5EncodeUtf8(user.getPassword()));
         //int  count =  userMapper.insert(user);
+        System.out.println(user.getRole());
         int  count =  userMapper.insertSelective(user);
         if(count == 0){
             return ServerResponse.createByError("注册失败");

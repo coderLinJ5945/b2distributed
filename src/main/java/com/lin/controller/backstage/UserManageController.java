@@ -23,7 +23,7 @@ public class UserManageController {
     private IUserService iUserService;
 
     //登录
-    @RequestMapping(value = "login.do", method = {RequestMethod.POST})
+    @RequestMapping(value = "login.do", method = {RequestMethod.POST,RequestMethod.GET})
     @ResponseBody
     public ServerResponse<User> login(HttpSession session, String username, String password){
         ServerResponse<User> response =  iUserService.login(username,password);
