@@ -22,4 +22,12 @@ public class Constant {
         Set<String> PRODUCT_ASC_DESC = Sets.newHashSet("price_desc","price_asc","name_desc","name_asc");
     }
 
+    public interface Cart{
+        int CHECKED = 1; //选中
+        int UNCHECKED = 0; //未选中
+
+        String LIMIT_NUM_FAIL = "LIMIT_NUM_FAIL";
+        String LIMIT_NUM_SUCCESS = "LIMIT_NUM_SUCCESS";
+    }
+
 }

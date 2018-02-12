@@ -3,6 +3,7 @@ package com.lin.vo;
 import java.math.BigDecimal;
 
 /**
+ * @author linj
  * 产品的view object 和pojo主要的区别是数据类型，和数据字段
  *
  */

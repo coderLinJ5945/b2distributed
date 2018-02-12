@@ -3,7 +3,7 @@ package com.lin.util;
 import java.security.MessageDigest;
 
 /**
- * Created by geely
+ * Created by linj
  */
 public class MD5Util {
 

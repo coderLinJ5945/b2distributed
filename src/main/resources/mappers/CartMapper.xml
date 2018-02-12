@@ -21,10 +21,43 @@
     from mmall_cart
     where id = #{id,jdbcType=INTEGER}
   </select>
+
+  <select id="selectByUserIdAndProductId" resultMap="BaseResultMap" parameterType="map">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_cart
+    where user_id = #{userId,jdbcType=INTEGER}
+    and product_id = #{productId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByUserId" resultMap="BaseResultMap" parameterType="int">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_cart
+    where user_id = #{userId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectCartProductAllCheckedByUserId" resultType="int" parameterType="int">
+    select count(1)
+    from  mmall_cart
+    where  checked =0 and user_id = #{userId,jdbcType=INTEGER}
+  </select>
+
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from mmall_cart
     where id = #{id,jdbcType=INTEGER}
   </delete>
+
+  <delete id="deleteByProductIdsAndUserId" parameterType="map">
+    delete from mmall_cart
+    where user_id = #{userId}
+    and product_id in
+    <foreach collection="productIds" item="item" index="index" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+  </delete>
+
   <insert id="insert" parameterType="com.lin.pojo.Cart" >
     insert into mmall_cart (id, user_id, product_id, 
       quantity, checked, create_time, 
@@ -51,12 +84,10 @@
       <if test="checked != null" >
         checked,
       </if>
-      <if test="createTime != null" >
+
         create_time,
-      </if>
-      <if test="updateTime != null" >
-        update_time,
-      </if>
+
+
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -74,12 +105,9 @@
       <if test="checked != null" >
         #{checked,jdbcType=INTEGER},
       </if>
-      <if test="createTime != null" >
-        #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updateTime != null" >
-        #{updateTime,jdbcType=TIMESTAMP},
-      </if>
+
+        now(),
+
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.lin.pojo.Cart" >
@@ -97,12 +125,11 @@
       <if test="checked != null" >
         checked = #{checked,jdbcType=INTEGER},
       </if>
-      <if test="createTime != null" >
+    <!--  <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updateTime != null" >
-        update_time = #{updateTime,jdbcType=TIMESTAMP},
-      </if>
+      </if>-->
+        update_time = now(),
+
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -115,5 +142,13 @@
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <update id="selectOrUnSelect" parameterType="map">
+    update mmall_cart set checked = #{checked}
+    where  user_id = #{userId}
+    <if test="productId != null">
+      and product_id = #{productId}
+    </if>
   </update>
 </mapper>
