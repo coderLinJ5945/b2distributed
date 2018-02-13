@@ -27,7 +27,9 @@ public class Shipping {
 
     private Date updateTime;
 
-    public Shipping(Integer id, Integer userId, String receiverName, String receiverPhone, String receiverMobile, String receiverProvince, String receiverCity, String receiverDistrict, String receiverAddress, String receiverZip, Date createTime, Date updateTime) {
+    private Integer status;
+
+    public Shipping(Integer id, Integer userId, String receiverName, String receiverPhone, String receiverMobile, String receiverProvince, String receiverCity, String receiverDistrict, String receiverAddress, String receiverZip, Date createTime, Date updateTime, Integer status) {
         this.id = id;
         this.userId = userId;
         this.receiverName = receiverName;
@@ -40,6 +42,7 @@ public class Shipping {
         this.receiverZip = receiverZip;
         this.createTime = createTime;
         this.updateTime = updateTime;
+        this.status = status;
     }
 
     public Shipping() {
@@ -140,5 +143,12 @@ public class Shipping {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

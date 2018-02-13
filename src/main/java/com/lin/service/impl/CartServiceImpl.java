@@ -31,7 +31,6 @@ public class CartServiceImpl implements ICartService {
     @Autowired
     private ProductMapper productMapper;
 
-
     //购物车list
     public ServerResponse<CartViewObject> list(Integer userId){
         /**
@@ -40,7 +39,7 @@ public class CartServiceImpl implements ICartService {
          * 3、如果购物车有东西，循环遍历Cart，拿到商品id ，根据商品Id获取商品需要展示的信息
          * 3.1主要是对a 库存和 b 购物车该商品的数量做对比， if b>a --->a LimitQuantity限制数量， 库存充足true 不足fasle
          * 3.2 计算勾选的总价钱
-         *
+         * todo  业务保留，这里循环查询后面改成join
          */
         CartViewObject cartViewObject = new CartViewObject();
         BigDecimal totalPrice = new BigDecimal("0.00");
@@ -97,6 +96,7 @@ public class CartServiceImpl implements ICartService {
 
         return ServerResponse.createBySuccess(cartViewObject);
     }
+
 
     //获取购物车中商品是否全选中
     private boolean selectCartProductAllCheckedByUserId(Integer userId){
